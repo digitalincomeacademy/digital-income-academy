@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.token.email in get(/databases/$(database)/documents/settings/main).data.admins;
+    }
+    // শুধু stats.totalVisits ঠিক ১ বাড়ানো — পাবলিক ভিজিট কাউন্টারের জন্য
+    function onlyTotalVisitsIncrement() {
+      let topChanged = request.resource.data.diff(resource.data).affectedKeys();
+      let oldStats = resource.data.get('stats', {});
+      let newStats = request.resource.data.get('stats', {});
+      let statsChanged = newStats.diff(oldStats).affectedKeys();
+      let oldCount = oldStats.get('totalVisits', 0);
+      let newCount = newStats.get('totalVisits', 0);
+      return topChanged.hasOnly(['stats']) && statsChanged.hasOnly(['totalVisits'])
+        && oldCount is int && newCount is int && newCount == oldCount + 1;
+    }
+    match /settings/{doc} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || onlyTotalVisitsIncrement();
+    }
+    // লাইভ ভিজিটর presence — সবার পড়ার অনুমতি (গণনার জন্য দরকার),
+    // লেখা শুধু lastSeen টাইমস্ট্যাম্প ফিল্ডে সীমাবদ্ধ
+    match /visitors/{sessionId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['lastSeen'])
+        && request.resource.data.lastSeen is timestamp;
+      allow update: if request.resource.data.keys().hasOnly(['lastSeen'])
+        && request.resource.data.lastSeen is timestamp;
+      allow delete: if true;
+    }
+    match /{col}/{doc} {
+      allow read: if col in ['courses','videos','tools','apps','announcements','testimonials','faqs','posts','team'];
+      allow write: if isAdmin();
+    }
+    match /enrollments/{doc} {
+      allow create: if request.resource.data.name is string && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string && request.resource.data.phone.size() < 20
+        && request.resource.data.trxId is string && request.resource.data.trxId.size() < 40;
+      allow read, update, delete: if isAdmin();
+    }
+    match /messages/{doc} {
+      allow create: if request.resource.data.message is string && request.resource.data.message.size() < 1000;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    font-family: 'Hind Siliguri', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+}
+
+html { scroll-behavior: smooth; overflow-x: clip; }
+body { @apply bg-slate-950 text-slate-100 font-body leading-relaxed antialiased; overflow-x: clip; }
+h1, h2, h3 { @apply font-head leading-snug; }
+::selection { background: #10b981; color: #020617; }
+
+/* Custom scrollbar (AI Studio theme) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #090d16; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+/* Marquee / ticker animation */
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+.animate-ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker 28s linear infinite;
+}
+.animate-ticker:hover { animation-play-state: paused; }
+
+/* Ticker edge fade mask */
+.mask-gradient {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Subtle glow pulse */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+.glow-orb { animation: pulseGlow 8s ease-in-out infinite; }
+
+/* Modal entrance */
+@keyframes modalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-fade { animation: modalFade 0.2s ease-out; }
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-slide-up { animation: modalSlideUp 0.25s ease-out; }
+
+/* Notice popup entrance (scale + fade) */
+@keyframes noticePop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+.notice-pop { animation: noticePop 0.25s ease-out; }
+
+/* Legacy utilities (other pages) */
+.btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 min-h-[48px] font-semibold transition duration-300 active:scale-95; }
+.btn-primary { @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 hover:shadow-lg hover:scale-105; }
+.btn-gold { @apply border border-gold-400 text-gold-400 hover:bg-gold-400 hover:text-navy-950; }
+.glass { @apply bg-white/5 backdrop-blur-xl border border-white/10; }
+.skeleton { @apply rounded-2xl bg-white/5 animate-pulse; }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { display: flex; width: max-content; animation: marquee 30s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes drift { 0%,100% { transform: translate3d(0,0,0); } 50% { transform: translate3d(30px,-40px,0); } }
+.orb { position: absolute; border-radius: 9999px; filter: blur(80px); animation: drift 14s ease-in-out infinite; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
