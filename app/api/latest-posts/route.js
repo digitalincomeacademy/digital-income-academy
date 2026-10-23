@@ -21,6 +21,18 @@ function db() {
   return getFirestore(app);
 }
 
+const CORS_ORIGIN = "https://freetools.digitalincomeacademy.site";
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": CORS_ORIGIN,
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  Vary: "Origin",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function GET() {
   try {
     const database = db();
@@ -130,13 +142,14 @@ export async function GET() {
       {
         headers: {
           "Cache-Control": "no-store, no-cache, must-revalidate",
+          ...CORS_HEADERS,
         },
       }
     );
   } catch (e) {
     return Response.json(
       { ok: false, error: String(e?.message || e) },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }
