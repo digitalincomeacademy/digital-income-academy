@@ -22,8 +22,18 @@ const btnCls =
 export default function ContactButtons() {
   const { settings } = useSettings();
 
-  const waNumber = String(settings?.whatsapp || "").replace(/[^0-9]/g, "");
-  const waOn = settings?.whatsappEnabled !== false && !!waNumber;
+  // WhatsApp target: a username (e.g. @RifatSarker_DIA) is preferred over a
+  // phone number, so no number is exposed. A plain number still works.
+  const waRaw = String(settings?.whatsapp || "").trim();
+  const waUser = waRaw.replace(/^@/, "");
+  const waIsUsername = /[a-zA-Z]/.test(waUser);
+  const waNumber = waRaw.replace(/[^0-9]/g, "");
+  const waHref = waIsUsername
+    ? `https://wa.me/${waUser}?text=${encodeURIComponent("আসসালামু আলাইকুম! আমি কোর্স সম্পর্কে জানতে চাই।")}`
+    : waNumber
+      ? `https://wa.me/${waNumber}?text=${encodeURIComponent("আসসালামু আলাইকুম! আমি কোর্স সম্পর্কে জানতে চাই।")}`
+      : "";
+  const waOn = settings?.whatsappEnabled !== false && !!waHref;
 
   const kajlaOn = settings?.kajlaChatEnabled !== false;
 
@@ -36,7 +46,7 @@ export default function ContactButtons() {
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-center gap-3">
       {waOn && (
         <a
-          href={`https://wa.me/${waNumber}?text=${encodeURIComponent("আসসালামু আলাইকুম! আমি কোর্স সম্পর্কে জানতে চাই।")}`}
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="WhatsApp-এ চ্যাট করুন"
