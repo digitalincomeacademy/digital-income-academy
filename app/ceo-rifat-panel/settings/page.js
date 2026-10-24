@@ -281,7 +281,7 @@ function SettingsInner() {
               <ToggleSwitch checked={form.whatsappEnabled} onChange={(v) => set("whatsappEnabled", v)} />
             </div>
             <Field label="হোয়াটসঅ্যাপ নম্বর">
-              <input value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} className={inputCls} placeholder="@username বা 8801XXXXXXXXX" />
+              <input value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} className={inputCls} placeholder="8801XXXXXXXXX" />
             </Field>
           </div>
           <div className="rounded-xl border border-navy-800 bg-navy-950 p-3 space-y-2">
